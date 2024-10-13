@@ -40,6 +40,14 @@ with open('models/data_documents.pkl', 'rb') as file:
 with open('models/data_embeddings.pkl', 'rb') as file:
     embeddings = pickle.load(file)
 
+# Словарь с описаниями кластеров
+cluster_descriptions = {
+    0: {"name": "Финансовые и экономические новости", "description": "Описание включает темы, связанные с экономической ситуацией, изменениями в валютных курсах, а также результатами и прогнозами крупных компаний и отраслей."},
+    1: {"name": "Технологические новости и инновации", "description": "Включает тексты, которые обсуждают технологические достижения, новые продукты и услуги, а также изменения в индустрии технологий."},
+    2: {"name": "Политические и социальные события", "description": "Охватывает актуальные политические события, конфликты и изменения в социальной сфере."},
+    3: {"name": "Спортивные события и достижения", "description": "Этот класс фокусируется на спортивных событиях, достижениях отдельных спортсменов и команд."}
+}
+
 
 # Функция для предобработки текста
 def preprocess_text(text):
@@ -72,13 +80,12 @@ async def read_root(request: Request):
 
 
 # Загрузка и классификация документа
+# Загрузка и классификация документа
 @app.post("/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...)):
     content = await file.read()
-    # Преобразуем байты в строку
     text = content.decode('utf-8')
 
-    # Извлечение текста после "Text: " (если есть)
     start_index = text.find("Text: ")
     if start_index != -1:
         extracted_text = text[start_index + 6:].strip()
@@ -88,5 +95,15 @@ async def create_upload_file(file: UploadFile = File(...)):
     # Классификация текста
     cluster = classify_new_document(extracted_text)
 
-    # Преобразуем numpy.int32 в обычный int
-    return {"cluster": int(cluster)}
+    # Преобразуем numpy.int32 в стандартный int
+    cluster = int(cluster)  # Явное преобразование
+
+    # Получаем описание и название кластера
+    cluster_info = cluster_descriptions.get(cluster, {"name": "Неизвестный", "description": "Описание недоступно"})
+
+    # Возвращаем информацию о кластере
+    return {
+        "cluster": cluster,
+        "name": cluster_info["name"],
+        "description": cluster_info["description"]
+    }
