@@ -80,7 +80,6 @@ async def read_root(request: Request):
 
 
 # Загрузка и классификация документа
-# Загрузка и классификация документа
 @app.post("/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...)):
     content = await file.read()
