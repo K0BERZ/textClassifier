@@ -14,6 +14,10 @@ from nltk.stem import WordNetLemmatizer
 from fastapi import Request
 import nltk
 
+# Устанавливаем путь к данным NLTK внутри проекта
+nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+nltk.data.path.append(nltk_data_path)
+
 # Обязательно скачать ресурсы nltk
 nltk.download('punkt')
 nltk.download('stopwords')
